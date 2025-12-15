@@ -1,8 +1,18 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
+	import type { ScanMode } from '$lib/config';
 
-	const presenter = new ScanPresenter();
+	// Parse mode from URL query parameter
+	function getModeFromUrl(): ScanMode {
+		if (typeof window === 'undefined') return 'checkout';
+		const params = new URLSearchParams(window.location.search);
+		const mode = params.get('mode');
+		return mode === 'checkin' ? 'checkin' : 'checkout';
+	}
+
+	const mode = getModeFromUrl();
+	const presenter = new ScanPresenter(mode);
 	let videoElement: HTMLVideoElement;
 
 	onMount(() => presenter.setup(videoElement));
@@ -52,7 +62,7 @@
 				onclick={() => window.location.href = presenter.getCheckoutUrl()}
 				class="mt-4 w-full rounded bg-green-500 px-4 py-3 font-semibold text-white hover:bg-green-600"
 			>
-				Check out items
+				{presenter.getButtonText()}
 			</button>
 		{/if}
 	</div>

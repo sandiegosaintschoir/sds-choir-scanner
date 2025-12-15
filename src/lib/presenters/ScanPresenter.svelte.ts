@@ -1,10 +1,16 @@
 import QrScanner from 'qr-scanner';
 import { SvelteSet } from 'svelte/reactivity';
+import { buildFormUrl, type ScanMode } from '$lib/config';
 
 export class ScanPresenter {
 	private scanner: QrScanner | null = null;
 	public scannedIds: SvelteSet<string> = $state(new SvelteSet<string>());
 	private detected: Set<string> = new Set();
+	private readonly mode: ScanMode;
+
+	constructor(mode: ScanMode = 'checkout') {
+		this.mode = mode;
+	}
 
 	private validateAndExtractIds(data: string): string[] | null {
 		try {
@@ -70,6 +76,10 @@ export class ScanPresenter {
 
 	getCheckoutUrl(): string {
 		const ids = [...this.scannedIds].join(',');
-		return `https://sheets.google.com/12345?ids=${ids}`;
+		return buildFormUrl(ids, this.mode);
+	}
+
+	getButtonText(): string {
+		return this.mode === 'checkin' ? 'Check items in' : 'Check out items';
 	}
 }
