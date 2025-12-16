@@ -11,6 +11,18 @@
 		return mode === 'checkin' ? 'checkin' : 'checkout';
 	}
 
+	// Switch between checkout and check-in modes
+	function switchToMode(newMode: ScanMode) {
+		const params = new URLSearchParams(window.location.search);
+		if (newMode === 'checkin') {
+			params.set('mode', 'checkin');
+		} else {
+			params.delete('mode');
+		}
+		const queryString = params.toString();
+		window.location.href = queryString ? `/?${queryString}` : '/';
+	}
+
 	const mode = getModeFromUrl();
 	const presenter = new ScanPresenter(mode);
 	let videoElement: HTMLVideoElement;
@@ -20,11 +32,32 @@
 </script>
 
 <svelte:head>
-	<title>QR Scanner</title>
+	<title>{mode === 'checkin' ? 'QR Scanner - Check In' : 'QR Scanner - Checkout'}</title>
 </svelte:head>
 
 <main class="container mx-auto p-4">
-	<h1 class="mb-6 text-center text-3xl font-bold">QR Scanner</h1>
+	<h1 class="mb-6 text-center text-3xl font-bold">
+		{mode === 'checkin' ? 'QR Scanner - Check In' : 'QR Scanner - Checkout'}
+	</h1>
+
+	<!-- Mode Switch Button -->
+	<div class="mx-auto max-w-md mb-4 text-center">
+		{#if mode === 'checkout'}
+			<button
+				onclick={() => switchToMode('checkin')}
+				class="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+			>
+				Are you a librarian? Click here to check items in
+			</button>
+		{:else}
+			<button
+				onclick={() => switchToMode('checkout')}
+				class="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+			>
+				Click here to check items out
+			</button>
+		{/if}
+	</div>
 
 	<!-- Video -->
 	<div class="mx-auto max-w-md">
