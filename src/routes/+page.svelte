@@ -20,7 +20,8 @@
 			params.delete('mode');
 		}
 		const queryString = params.toString();
-		window.location.href = queryString ? `/?${queryString}` : '/';
+		const pathname = window.location.pathname;
+		window.location.href = queryString ? `${pathname}?${queryString}` : pathname;
 	}
 
 	const mode = getModeFromUrl();
