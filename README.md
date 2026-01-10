@@ -1,8 +1,31 @@
 # San Diego Saints Choir Music Library System Scanner
 
-This is the barcode scanner for checking items in and out of the San Diego Saints Choir Music Library.
+A SvelteKit application for checking items in and out of the San Diego Saints Choir Music Library using barcode scanning.
+
+**Live URL:** https://parkernilson.github.io/sds-choir-scanner/
+
+## Tech Stack
+
+- **Framework:** SvelteKit
+- **Deployment:** GitHub Pages (automatic deployment via GitHub Actions on push to `main` branch)
 
 ## Development Setup
+
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+```
 
 ### HTTPS Configuration
 
@@ -32,8 +55,11 @@ mkcert parkernilson-macbook.local localhost
 ```
 
 This will create:
+
 - `parkernilson-macbook.local+1-key.pem` (private key)
 - `parkernilson-macbook.local+1.pem` (certificate)
+
+NOTE: This should match your computer's mDNS name. (see: https://support.apple.com/guide/mac-help/change-computers-local-hostname-mac-mchlp2322/mac)
 
 #### Running the Dev Server
 
@@ -42,6 +68,7 @@ npm run dev
 ```
 
 The server will start with HTTPS enabled:
+
 - **Local access:** `https://localhost:5173`
 - **Network access:** `https://parkernilson-macbook.local:5173`
 
@@ -61,7 +88,6 @@ To test on a mobile device connected to the same network:
 
 - Certificates are gitignored and must be generated locally
 - HTTPS is only enabled in development mode (`NODE_ENV=development`)
-- If you switch networks, you may need to access via IP address or regenerate certificates
 
 ## Production Deployment
 
@@ -74,6 +100,7 @@ The site automatically deploys to GitHub Pages when changes are pushed to the `m
 ### Manual Deployment
 
 You can also trigger a deployment manually:
+
 1. Go to the repository's Actions tab
 2. Select "Deploy to GitHub Pages"
 3. Click "Run workflow"
