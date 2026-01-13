@@ -33,27 +33,27 @@
 </script>
 
 <svelte:head>
-	<title>{mode === 'checkin' ? 'QR Scanner - Check In' : 'QR Scanner - Checkout'}</title>
+	<title>{mode === 'checkin' ? 'SDSC Library Checkin' : 'SDSC Library Checkout'}</title>
 </svelte:head>
 
 <main class="container mx-auto p-4">
 	<h1 class="mb-6 text-center text-3xl font-bold">
-		{mode === 'checkin' ? 'QR Scanner - Check In' : 'QR Scanner - Checkout'}
+		{mode === 'checkin' ? 'Choir Library Checkin' : 'Choir Library Checkout'}
 	</h1>
 
 	<!-- Mode Switch Button -->
-	<div class="mx-auto max-w-md mb-4 text-center">
+	<div class="mx-auto mb-4 max-w-md text-center">
 		{#if mode === 'checkout'}
 			<button
 				onclick={() => switchToMode('checkin')}
-				class="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 			>
 				Are you a librarian? Click here to check items in
 			</button>
 		{:else}
 			<button
 				onclick={() => switchToMode('checkout')}
-				class="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 			>
 				Click here to check items out
 			</button>
@@ -81,7 +81,7 @@
 			<div class="space-y-2">
 				{#each [...presenter.scannedIds] as id (id)}
 					<div class="flex items-center gap-2 rounded border border-blue-200 bg-blue-50 p-3">
-						<code class="flex-1 break-all text-sm">{id}</code>
+						<code class="flex-1 text-sm break-all">{id}</code>
 						<button
 							onclick={() => presenter.removeCode(id)}
 							class="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
@@ -93,7 +93,7 @@
 			</div>
 
 			<button
-				onclick={() => window.location.href = presenter.getCheckoutUrl()}
+				onclick={() => (window.location.href = presenter.getCheckoutUrl())}
 				class="mt-4 w-full rounded bg-green-500 px-4 py-3 font-semibold text-white hover:bg-green-600"
 			>
 				{presenter.getButtonText()}
