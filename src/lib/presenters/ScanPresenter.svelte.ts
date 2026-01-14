@@ -1,16 +1,23 @@
 import QrScanner from 'qr-scanner';
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { BASE_PATH, buildFormUrl, HOST_NAME, type ScanMode } from '$lib/config';
 import { ChoirItem } from '$lib/ChoirItem';
+import { ScannedItemsStorage } from '$lib/ScannedItemsStorage.svelte';
 
 export class ScanPresenter {
+    private scannedItemsStorage: ScannedItemsStorage;
+    public get scannedItems(): SvelteMap<string, ChoirItem> {
+        return this.scannedItemsStorage.scannedItems;
+    }
+
     private scanner: QrScanner | null = null;
-    public scannedItems: SvelteSet<ChoirItem> = $state(new SvelteSet<ChoirItem>());
     private detected: Set<string> = new Set();
     private readonly mode: ScanMode;
 
     constructor(mode: ScanMode = 'checkout') {
         this.mode = mode;
+        this.scannedItemsStorage = ScannedItemsStorage.initializeFromLocalStorage();
+        // TODO: Add any initial items from the query params of the url
     }
 
     private validateAndExtractBarcodeData(data: string): ChoirItem[] | null {
@@ -37,9 +44,10 @@ export class ScanPresenter {
             const names = nameParam.split(',').map(decodeURIComponent);
 
             if (ids.length !== names.length) {
-                throw new Error(
+                console.log(
                     `[ScanPresenter] Tried to decode a QR code with value ${data} but the length of the ids and names params were not equal`
                 );
+                return null;
             }
 
             const barcodes = ids.map((id, idx) => new ChoirItem(id, names[idx]));
@@ -51,17 +59,20 @@ export class ScanPresenter {
     }
 
     private processQrCode(data: string): void {
+        // TODO: I had to disable this because it doesn't quite account for the fact that multiple items can be encoded in a single barcode
+        // so it doesn't know how to delete an item from detected if we remove an item from the list
+        //
         // Prevent processing same URL multiple times
-        if (this.detected.has(data)) return;
-        this.detected.add(data);
+        // if (this.detected.has(data)) return;
+        // this.detected.add(data);
 
         // Validate and extract IDs
         const items = this.validateAndExtractBarcodeData(data);
         if (!items) return; // Invalid URL, silently ignore
 
         // Add each new ID
-        items.forEach((id) => {
-            this.scannedItems.add(id);
+        items.forEach((item) => {
+            this.addScannedItem(item);
         });
     }
 
@@ -79,10 +90,13 @@ export class ScanPresenter {
         }
     }
 
+    addScannedItem(item: ChoirItem): void {
+        this.scannedItemsStorage.addItem(item);
+    }
+
     removeScannedItem(item: ChoirItem): void {
-        this.scannedItems.delete(item);
-        // Note: Don't remove from detected Set - we still want to remember
-        // we scanned that URL to avoid reprocessing if scanned again
+        this.scannedItemsStorage.deleteItem(item);
+        this.detected.delete(item.itemId);
     }
 
     getCheckoutUrl(): string {

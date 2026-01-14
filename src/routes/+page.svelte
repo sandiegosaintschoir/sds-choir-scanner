@@ -80,7 +80,7 @@
 			<p class="py-8 text-center text-gray-500">No codes scanned yet</p>
 		{:else}
 			<div class="space-y-2">
-				{#each [...presenter.scannedItems] as item (item.itemId)}
+				{#each [...presenter.scannedItems.values()] as item (item.itemId)}
 					<div class="flex items-center gap-2 rounded border border-blue-200 bg-blue-50 p-3">
 						<div class="flex w-full items-center justify-start">
 							<span class="mr-4 text-sm break-all">{item.name}</span>
