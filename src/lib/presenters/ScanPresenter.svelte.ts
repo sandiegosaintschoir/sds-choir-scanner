@@ -11,7 +11,11 @@ export class ScanPresenter {
     }
 
     private scanner: QrScanner | null = null;
-    private detected: Set<string> = new Set();
+    // TODO: Maybe we should track detected item ids so that we can skip "adding" duplicates
+    // to the set... however there is not a huge benefit because we have to decode them anyway
+    // to see which items have been detected, and items can be scanned in bulk through the same
+    // QR code, but removed individually
+    // private detected: Set<string> = new Set();
     private readonly mode: ScanMode;
 
     constructor(mode: ScanMode = 'checkout') {
@@ -59,13 +63,6 @@ export class ScanPresenter {
     }
 
     private processQrCode(data: string): void {
-        // TODO: I had to disable this because it doesn't quite account for the fact that multiple items can be encoded in a single barcode
-        // so it doesn't know how to delete an item from detected if we remove an item from the list
-        //
-        // Prevent processing same URL multiple times
-        // if (this.detected.has(data)) return;
-        // this.detected.add(data);
-
         // Validate and extract IDs
         const items = this.validateAndExtractBarcodeData(data);
         if (!items) return; // Invalid URL, silently ignore
@@ -96,7 +93,6 @@ export class ScanPresenter {
 
     removeScannedItem(item: ChoirItem): void {
         this.scannedItemsStorage.deleteItem(item);
-        this.detected.delete(item.itemId);
     }
 
     getCheckoutUrl(): string {
