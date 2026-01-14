@@ -24,6 +24,7 @@
 		window.location.href = queryString ? `${pathname}?${queryString}` : pathname;
 	}
 
+	// TODO: Handle this in a more predictable and immutable way
 	const mode = getModeFromUrl();
 	const presenter = new ScanPresenter(mode);
 	let videoElement: HTMLVideoElement;
@@ -73,17 +74,20 @@
 
 	<!-- Scanned codes list -->
 	<div class="mx-auto mt-8 max-w-md">
-		<h2 class="mb-4 text-xl font-semibold">Scanned Items ({presenter.scannedIds.size})</h2>
+		<h2 class="mb-4 text-xl font-semibold">Scanned Items ({presenter.scannedItems.size})</h2>
 
-		{#if presenter.scannedIds.size === 0}
+		{#if presenter.scannedItems.size === 0}
 			<p class="py-8 text-center text-gray-500">No codes scanned yet</p>
 		{:else}
 			<div class="space-y-2">
-				{#each [...presenter.scannedIds] as id (id)}
+				{#each [...presenter.scannedItems] as item (item.itemId)}
 					<div class="flex items-center gap-2 rounded border border-blue-200 bg-blue-50 p-3">
-						<code class="flex-1 text-sm break-all">{id}</code>
+						<div class="flex w-full items-center justify-start">
+							<span class="mr-4 text-sm break-all">{item.name}</span>
+							<span class="text-sm break-all">[Id: {item.itemId}]</span>
+						</div>
 						<button
-							onclick={() => presenter.removeCode(id)}
+							onclick={() => presenter.removeScannedItem(item)}
 							class="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
 						>
 							Remove
