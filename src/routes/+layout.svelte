@@ -7,5 +7,5 @@
 </script>
 
 <svelte:head><link rel="icon" type="image/png" href={favicon} /></svelte:head>
-<img class="m-auto max-w-lg" alt="San Diego Saints Choir Banner Logo" src={sdscBannerImg} />
+<img class="m-auto max-w-lg p-3" alt="San Diego Saints Choir Banner Logo" src={sdscBannerImg} />
 {@render children()}

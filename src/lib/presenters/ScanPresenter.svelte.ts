@@ -1,14 +1,17 @@
 import QrScanner from 'qr-scanner';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { BASE_PATH, buildFormUrl, HOST_NAME, type ScanMode } from '$lib/config';
+import { BASE_PATH, HOST_NAME, type ScanMode } from '$lib/config';
 import { ChoirItem } from '$lib/ChoirItem';
 import { ScannedItemsStorage } from '$lib/ScannedItemsStorage.svelte';
+import { FormService } from '$lib/FormService';
 
 export class ScanPresenter {
     private scannedItemsStorage: ScannedItemsStorage;
     public get scannedItems(): SvelteMap<string, ChoirItem> {
         return this.scannedItemsStorage.scannedItems;
     }
+
+    private formService = new FormService();
 
     private scanner: QrScanner | null = null;
     // TODO: Maybe we should track detected item ids so that we can skip "adding" duplicates
@@ -100,10 +103,7 @@ export class ScanPresenter {
     }
 
     getCheckoutUrl(): string {
-        // const ids = [...this.scannedIds].join(',');
-        // TODO: Format the checkout URL correctly
-        // return buildFormUrl(ids, this.mode);
-        return 'TODO: Fix me';
+        return this.formService.buildFormUrl([...this.scannedItems.values()], this.mode);
     }
 
     getButtonText(): string {
