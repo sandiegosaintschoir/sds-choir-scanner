@@ -18,20 +18,24 @@ export class ScanPresenter {
     // private detected: Set<string> = new Set();
     private readonly mode: ScanMode;
 
-    constructor(mode: ScanMode = 'checkout') {
+    constructor(initialURL: string, mode: ScanMode = 'checkout') {
         this.mode = mode;
         this.scannedItemsStorage = ScannedItemsStorage.initializeFromLocalStorage();
-        // TODO: Add any initial items from the query params of the url
+        // Add any initial items from the url
+        const initialItems = this.validateAndExtractBarcodeData(initialURL);
+        initialItems?.forEach((item) => this.addScannedItem(item));
     }
 
     private validateAndExtractBarcodeData(data: string): ChoirItem[] | null {
         try {
+            console.log(`[ScanPresenter.validateAndExtractBarcodeData] Validating url: ${data}`);
             const url = new URL(data);
 
             // Validate hostname and pathname
-            if (url.hostname !== HOST_NAME || url.pathname !== BASE_PATH) {
-                return null;
-            }
+            // TODO: Re-enable in production and/or set up a way for this to work in dev also
+            // if (url.hostname !== HOST_NAME || url.pathname !== BASE_PATH) {
+            //     return null;
+            // }
 
             // Extract and parse item parameter
             const itemParam = url.searchParams.get('item');

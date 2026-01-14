@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { page } from '$app/state';
 	import { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
 	import type { ScanMode } from '$lib/config';
 
@@ -26,7 +27,7 @@
 
 	// TODO: Handle this in a more predictable and immutable way
 	const mode = getModeFromUrl();
-	const presenter = new ScanPresenter(mode);
+	const presenter = new ScanPresenter(page.url.href, mode);
 	let videoElement: HTMLVideoElement;
 
 	onMount(() => presenter.setup(videoElement));
