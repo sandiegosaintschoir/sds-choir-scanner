@@ -63,7 +63,29 @@
 	</div>
 
 	<!-- Video -->
-	<div class="mx-auto max-w-md">
+	<div class="relative mx-auto max-w-md">
+		<div class="absolute z-10 flex h-full w-full items-center justify-center">
+			<svg
+				class="h-3/4 w-3/4"
+				viewBox="0 0 24 24"
+				stroke="#ffffff"
+				stroke-width="0.5"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path d="M22 17V22H17" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="M7 22H2V17" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="M17 2H22V7" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="M7 2H2V7" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</div>
+		<div
+			class="absolute z-5 flex h-full w-full items-end bg-gradient-to-b from-transparent from-50% to-black to-150% pb-4"
+		>
+			<p class="w-full text-center text-sm text-white sm:text-2xl">
+				Scan QR codes to add items to list!
+			</p>
+		</div>
 		<video
 			bind:this={videoElement}
 			autoplay
