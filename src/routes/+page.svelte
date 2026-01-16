@@ -80,10 +80,10 @@
 			</svg>
 		</div>
 		<div
-			class="absolute z-5 flex h-full w-full items-end bg-gradient-to-b from-transparent from-50% to-black to-150% pb-4"
+			class="absolute z-5 flex h-full w-full items-end bg-gradient-to-b from-transparent from-50% to-black to-140% pb-4"
 		>
 			<p class="w-full text-center text-sm text-white sm:text-2xl">
-				Scan QR codes to add items to list!
+				Scan QR codes to add items to your list!
 			</p>
 		</div>
 		<video
