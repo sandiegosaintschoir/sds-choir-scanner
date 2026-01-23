@@ -38,6 +38,11 @@ export class ScannedItemsStorage {
         localStorage.setItem(this.scannedItemStorageKey(), scannedItemsStorage.encodeAsString());
     }
 
+    private static clearStorage(): void {
+        console.log(`[ScannedItemsStorage.clear] clearing storage`);
+        localStorage.removeItem(this.scannedItemStorageKey());
+    }
+
     private static createAndWriteDefault(): ScannedItemsStorage {
         const scannedItemsStorage = new ScannedItemsStorage(
             [],
@@ -96,5 +101,11 @@ export class ScannedItemsStorage {
         console.log(`[ScannedItemsStorage.deleteItem] Deleting item ${item.encodeAsString()}`);
         this.scannedItems.delete(item.itemId);
         ScannedItemsStorage.writeToStorage(this);
+    }
+
+    public clear(): void {
+        console.log(`[ScannedItemsStorage.clear] Clearing all items from storage and list`);
+        this.scannedItems.clear();
+        ScannedItemsStorage.clearStorage();
     }
 }

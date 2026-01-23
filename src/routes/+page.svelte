@@ -38,9 +38,9 @@
 	<title>{mode === 'checkin' ? 'SDSC Library Checkin' : 'SDSC Library Checkout'}</title>
 </svelte:head>
 
-<main class="container mx-auto p-4">
-	<h1 class="mb-6 text-center text-3xl font-bold">
-		{mode === 'checkin' ? 'Choir Library Checkin' : 'Choir Library Checkout'}
+<main class="container mx-auto px-4 py-1">
+	<h1 class="mb-3 text-center text-xl font-bold">
+		Scan all of your QR codes to {mode === 'checkin' ? 'check in' : 'check out'}
 	</h1>
 
 	<!-- Mode Switch Button -->
@@ -120,7 +120,7 @@
 			</div>
 
 			<button
-				onclick={() => (window.location.href = presenter.getCheckoutUrl())}
+				onclick={() => presenter.goToCheckoutOrCheckin()}
 				class="mt-4 w-full rounded bg-green-500 px-4 py-3 font-semibold text-white hover:bg-green-600"
 			>
 				{presenter.getButtonText()}

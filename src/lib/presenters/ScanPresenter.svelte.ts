@@ -102,8 +102,14 @@ export class ScanPresenter {
         this.scannedItemsStorage.deleteItem(item);
     }
 
-    getCheckoutUrl(): string {
-        return this.formService.buildFormUrl([...this.scannedItems.values()], this.mode);
+    goToCheckoutOrCheckin(): void {
+        const items = [...this.scannedItems.values()];
+        this.scannedItemsStorage.clear();
+        window.location.href = this.getCheckoutOrCheckinUrl(items);
+    }
+
+    getCheckoutOrCheckinUrl(items: ChoirItem[]): string {
+        return this.formService.buildFormUrl([...items], this.mode);
     }
 
     getButtonText(): string {
