@@ -96,11 +96,13 @@
 	</div>
 
 	<!-- Scanned codes list -->
-	<div class="mx-auto mt-8 max-w-md">
-		<h2 class="mb-4 text-xl font-semibold">Scanned Items ({presenter.scannedItems.size})</h2>
+	<div class="mx-auto mt-2 max-w-md">
+		<h2 class="mb-2 text-xl font-semibold">Scanned Items ({presenter.scannedItems.size})</h2>
 
 		{#if presenter.scannedItems.size === 0}
-			<p class="py-8 text-center text-gray-500">No codes scanned yet</p>
+			<p class="py-4 text-center text-gray-500">
+				No items scanned yet. Items you scan will show up here.
+			</p>
 		{:else}
 			<div class="space-y-2">
 				{#each [...presenter.scannedItems.values()] as item (item.itemId)}
