@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
 	import type { ScanMode } from '$lib/config';
+	import * as Select from '$lib/components/ui/select';
 
 	// Parse mode from URL query parameter
 	function getModeFromUrl(): ScanMode {
