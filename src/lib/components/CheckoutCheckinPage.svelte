@@ -2,7 +2,9 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import * as Select from '$lib/components/ui/select';
 	import type { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
+	import type { ScanMode } from '$lib/config';
 
 	interface Props {
 		presenter: ScanPresenter;
@@ -18,14 +20,20 @@
 
 	let videoElement: HTMLVideoElement;
 
+	let selectedMode = $state<string>(presenter.mode);
+
+	$effect(() => {
+		if (selectedMode !== presenter.mode) {
+			navigateToOtherMode();
+		}
+	});
+
 	onMount(() => {
 		presenter.setup(videoElement);
 
-		// Strip items from URL to clean up address bar
+		// Strip any items from the URL to avoid adding them again on reload
 		const currentUrl = page.url;
-		console.log(`[CheckoutCheckinPage] currentUrl: ${currentUrl.href}`);
 		const cleanedUrl = presenter.stripItemsFromUrl(currentUrl);
-		console.log(`[CheckoutCheckinPage] Cleaned url: ${cleanedUrl.href}`);
 		if (cleanedUrl.href !== currentUrl.href) {
 			goto(cleanedUrl);
 		}
@@ -43,24 +51,34 @@
 		Scan all of your QR codes to {presenter.mode === 'checkin' ? 'check in' : 'check out'}
 	</h1>
 
-	<!-- Mode Switch Button -->
-	<div class="mx-auto mb-4 max-w-md text-center">
-		{#if presenter.mode === 'checkout'}
-			<button
-				onclick={navigateToOtherMode}
-				class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-			>
-				Are you a librarian? Click here to check items in
-			</button>
-		{:else}
-			<button
-				onclick={navigateToOtherMode}
-				class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-			>
-				Click here to check items out
-			</button>
-		{/if}
-	</div>
+	<Select.Root type="single" bind:value={selectedMode}>
+		<Select.Trigger class="w-[180px]"
+			>{selectedMode === 'checkin' ? 'Checkin' : 'Checkout'}</Select.Trigger
+		>
+		<Select.Content>
+			<Select.Item value="checkout">Checkout</Select.Item>
+			<Select.Item value="checkin">Checkin</Select.Item>
+		</Select.Content>
+	</Select.Root>
+
+	<!-- <!-- Mode Switch Button -->
+	<!-- <div class="mx-auto mb-4 max-w-md text-center"> -->
+	<!-- 	{#if presenter.mode === 'checkout'} -->
+	<!-- 		<button -->
+	<!-- 			onclick={navigateToOtherMode} -->
+	<!-- 			class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none" -->
+	<!-- 		> -->
+	<!-- 			Are you a librarian? Click here to check items in -->
+	<!-- 		</button> -->
+	<!-- 	{:else} -->
+	<!-- 		<button -->
+	<!-- 			onclick={navigateToOtherMode} -->
+	<!-- 			class="text-sm text-blue-600 underline hover:text-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none" -->
+	<!-- 		> -->
+	<!-- 			Click here to check items out -->
+	<!-- 		</button> -->
+	<!-- 	{/if} -->
+	<!-- </div> -->
 
 	<!-- Video -->
 	<div class="relative mx-auto max-w-md">
