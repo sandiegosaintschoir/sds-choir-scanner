@@ -1,5 +1,5 @@
 import QrScanner from 'qr-scanner';
-import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { SvelteMap } from 'svelte/reactivity';
 import { BASE_PATH, HOST_NAME, type ScanMode } from '$lib/config';
 import { ChoirItem } from '$lib/ChoirItem';
 import { ScannedItemsStorage } from '$lib/ScannedItemsStorage.svelte';
@@ -14,12 +14,7 @@ export class ScanPresenter {
     private formService = new FormService();
 
     private scanner: QrScanner | null = null;
-    // TODO: Maybe we should track detected item ids so that we can skip "adding" duplicates
-    // to the set... however there is not a huge benefit because we have to decode them anyway
-    // to see which items have been detected, and items can be scanned in bulk through the same
-    // QR code, but removed individually
-    // private detected: Set<string> = new Set();
-    private readonly mode: ScanMode;
+    public readonly mode: ScanMode;
 
     constructor(initialURL: string, mode: ScanMode = 'checkout') {
         this.mode = mode;
@@ -27,6 +22,13 @@ export class ScanPresenter {
         // Add any initial items from the url
         const initialItems = this.validateAndExtractBarcodeData(initialURL);
         initialItems?.forEach((item) => this.addScannedItem(item));
+    }
+
+    public stripItemsFromUrl(url: URL): URL {
+        const copy = new URL(url);
+        copy.searchParams.delete('item');
+        copy.searchParams.delete('name');
+        return copy;
     }
 
     private validateAndExtractBarcodeData(data: string): ChoirItem[] | null {
@@ -46,7 +48,6 @@ export class ScanPresenter {
             const nameParam = url.searchParams.get('name');
             if (!nameParam) return null;
 
-            // Split by comma, trim whitespace, filter empty strings
             const ids = itemParam
                 .split(',')
                 .map((id) => id.trim())
@@ -70,11 +71,9 @@ export class ScanPresenter {
     }
 
     private processQrCode(data: string): void {
-        // Validate and extract IDs
         const items = this.validateAndExtractBarcodeData(data);
         if (!items) return; // Invalid URL, silently ignore
 
-        // Add each new ID
         items.forEach((item) => {
             this.addScannedItem(item);
         });
