@@ -4,4 +4,6 @@
 	const { data } = $props();
 </script>
 
-<CheckoutCheckinPage presenter={data.presenter} />
+<main class="">
+	<CheckoutCheckinPage presenter={data.presenter} />
+</main>

@@ -3,6 +3,10 @@ import { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }) => {
-    const presenter = new ScanPresenter(url.href, 'checkout');
+    // Read mode from query parameter, default to 'checkout'
+    const modeParam = url.searchParams.get('mode');
+    const mode: ScanMode = modeParam === 'checkin' ? 'checkin' : 'checkout';
+
+    const presenter = new ScanPresenter(url.href, mode);
     return { presenter };
 };
