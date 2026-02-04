@@ -4,6 +4,6 @@
 	const { data } = $props();
 </script>
 
-<main class="">
+<main class="h-full">
 	<CheckoutCheckinPage presenter={data.presenter} />
 </main>

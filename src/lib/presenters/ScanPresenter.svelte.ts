@@ -11,10 +11,17 @@ export class ScanPresenter {
         return this.scannedItemsStorage.scannedItems;
     }
 
+    private _hasItems = $derived(this.scannedItems.size > 0);
+    public get hasItems(): boolean {
+        return this._hasItems;
+    }
+
     private formService = new FormService();
 
     private scanner: QrScanner | null = null;
     public readonly mode: ScanMode;
+
+    public readonly maxItems = 20;
 
     constructor(initialURL: string, mode: ScanMode = 'checkout') {
         this.mode = mode;
@@ -70,9 +77,19 @@ export class ScanPresenter {
         }
     }
 
+    /**
+     * @throws Error
+     */
     private processQrCode(data: string): void {
         const items = this.validateAndExtractBarcodeData(data);
         if (!items) return; // Invalid URL, silently ignore
+
+        // TODO: Make this throw a custom error and then react to it in the UI
+        if (this.scannedItems.size + items.length > this.maxItems) {
+            throw new Error(
+                `Cannot add ${items.length} items because that would result in too many items`
+            );
+        }
 
         items.forEach((item) => {
             this.addScannedItem(item);
@@ -81,7 +98,11 @@ export class ScanPresenter {
 
     setup(videoElement: HTMLVideoElement): void {
         this.scanner = new QrScanner(videoElement, (result) => this.processQrCode(result.data), {
-            preferredCamera: 'environment'
+            preferredCamera: 'environment',
+            onDecodeError: (error) => {
+                if (error === 'Scanner error: No QR code found') return;
+                console.error(error);
+            }
         });
         this.scanner.start();
     }
