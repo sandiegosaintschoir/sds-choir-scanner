@@ -52,6 +52,7 @@ export class ScanPresenter {
         this.scannedItemsStorage = ScannedItemsStorage.initializeFromLocalStorage();
         // Add any initial items from the url
         const initialItems = this.validateAndExtractBarcodeData(initialURL);
+        console.log(`[ScanPresenter] constructor adding initial items ${JSON.stringify(initialItems)}`);
         initialItems?.forEach((item) => this.addScannedItem(item));
     }
 
@@ -114,6 +115,8 @@ export class ScanPresenter {
             return;
         }
 
+        console.log('[ScanPresenter] processQrCode adding items!');
+
         this.incrementCheckKey();
         newItems.forEach((item) => {
             this.addScannedItem(item);
@@ -124,7 +127,7 @@ export class ScanPresenter {
         this.scanner = new QrScanner(videoElement, (result) => this.processQrCode(result.data), {
             preferredCamera: 'environment',
             onDecodeError: (error) => {
-                if (error === 'Scanner error: No QR code found') return;
+                if (typeof error === 'string' && error.toLowerCase().includes('no qr code found')) return;
                 console.error(error);
             },
             // highlightCodeOutline: true,

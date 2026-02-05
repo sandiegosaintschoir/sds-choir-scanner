@@ -4,7 +4,10 @@ import { ChoirItem } from './ChoirItem';
 export class ScannedItemsStorage {
     private static EXPIRATION_MS = 86400000; // 1 Day = 86,400,000 ms
 
-    public scannedItems = new SvelteMap<string, ChoirItem>();
+    private _scannedItems = new SvelteMap<string, ChoirItem>();
+    public get scannedItems() {
+        return this._scannedItems;
+    }
 
     constructor(
         items: ChoirItem[],

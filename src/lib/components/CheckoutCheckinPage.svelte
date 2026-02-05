@@ -15,7 +15,7 @@
 		presenter: ScanPresenter;
 	}
 
-	const { presenter }: Props = $props();
+	let { presenter }: Props = $props();
 
 	// Navigate between checkout and check-in modes
 	function navigateToOtherMode() {
@@ -69,9 +69,18 @@
 		}
 	});
 
-	onMount(() => {
-		presenter.setup(videoElement);
+	// Set up scanner whenever presenter or videoElement changes
+	$effect(() => {
+		if (videoElement && presenter) {
+			presenter.setup(videoElement);
 
+			return () => {
+				presenter.destroy();
+			};
+		}
+	});
+
+	onMount(() => {
 		// Strip any items from the URL to avoid adding them again on reload
 		const currentUrl = page.url;
 		const cleanedUrl = presenter.stripItemsFromUrl(currentUrl);
@@ -79,8 +88,6 @@
 			goto(cleanedUrl);
 		}
 	});
-
-	onDestroy(() => presenter.destroy());
 </script>
 
 <svelte:head>
