@@ -102,7 +102,9 @@ export class ScanPresenter {
             onDecodeError: (error) => {
                 if (error === 'Scanner error: No QR code found') return;
                 console.error(error);
-            }
+            },
+            highlightCodeOutline: true,
+            highlightScanRegion: true
         });
         this.scanner.start();
     }

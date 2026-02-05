@@ -55,7 +55,7 @@
 </svelte:head>
 
 <CenterColumn>
-	<div class="flex h-full w-full flex-col">
+	<div class="flex min-h-full w-full flex-col">
 		<div class="flex items-center justify-between px-3 py-2">
 			<img
 				class="w-[120px] xs:w-[164px]"
@@ -80,29 +80,25 @@
 		</p>
 
 		<!-- Video -->
-		<div class="relative w-full">
-			<div class="absolute z-10 flex h-full w-full items-center justify-center">
-				<svg
-					class="h-3/4 w-3/4"
-					viewBox="0 0 24 24"
-					stroke="#ffffff"
-					stroke-width="0.5"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path d="M22 17V22H17" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M7 22H2V17" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M17 2H22V7" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M7 2H2V7" stroke-linecap="round" stroke-linejoin="round" />
-				</svg>
-			</div>
-			<div
-				class="absolute z-5 flex h-full w-full items-end bg-gradient-to-b from-transparent from-50% to-black to-140% pb-4"
-			>
-				<!-- <p class="w-full text-center text-sm text-white sm:text-2xl"> -->
-				<!-- 	Scan QR codes to add items to your list! -->
-				<!-- </p> -->
-			</div>
+		<div id="video-container" class="aspect-square w-full">
+			<!-- <div class="absolute z-10 flex h-full w-full items-center justify-center"> -->
+			<!-- 	<svg -->
+			<!-- 		class="h-3/4 w-3/4" -->
+			<!-- 		viewBox="0 0 24 24" -->
+			<!-- 		stroke="#ffffff" -->
+			<!-- 		stroke-width="0.5" -->
+			<!-- 		fill="none" -->
+			<!-- 		xmlns="http://www.w3.org/2000/svg" -->
+			<!-- 	> -->
+			<!-- 		<path d="M22 17V22H17" stroke-linecap="round" stroke-linejoin="round" /> -->
+			<!-- 		<path d="M7 22H2V17" stroke-linecap="round" stroke-linejoin="round" /> -->
+			<!-- 		<path d="M17 2H22V7" stroke-linecap="round" stroke-linejoin="round" /> -->
+			<!-- 		<path d="M7 2H2V7" stroke-linecap="round" stroke-linejoin="round" /> -->
+			<!-- 	</svg> -->
+			<!-- </div> -->
+			<!-- <div class="absolute z-10 flex h-full w-full items-center justify-center"> -->
+			<!-- 	<p class="rounded-full bg-black/40 px-6 py-1 text-center text-white/75">QR Scanned ✓</p> -->
+			<!-- </div> -->
 			<video
 				bind:this={videoElement}
 				autoplay
@@ -156,3 +152,24 @@
 		</div>
 	</div>
 </CenterColumn>
+
+<!-- TODO: Make this work on mobile -->
+<style>
+	#video-container {
+		overflow: hidden !important;
+		position: relative;
+		clip-path: inset(0);
+	}
+	#video-container :global(.scan-region-highlight) {
+		border-radius: 30px;
+		outline: rgba(0, 0, 0, 0.25) solid 50vmax;
+	}
+	#video-container :global(.scan-region-highlight-svg) {
+		display: none;
+	}
+	#video-container :global(.code-outline-highlight) {
+		stroke: rgba(255, 255, 255, 0.5) !important;
+		stroke-width: 15 !important;
+		stroke-dasharray: none !important;
+	}
+</style>
