@@ -19,13 +19,15 @@
 
 	// Navigate between checkout and check-in modes
 	function navigateToOtherMode() {
+		const url = new URL(page.url);
 		if (presenter.mode === 'checkout') {
 			// Switching to checkin
-			goto('/?mode=checkin');
+			url.searchParams.set('mode', 'checkin');
 		} else {
 			// Switching to checkout - use clean URL without mode param
-			goto('/');
+			url.searchParams.delete('mode');
 		}
+		goto(url.pathname + url.search);
 	}
 
 	let videoElement: HTMLVideoElement;
