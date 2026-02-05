@@ -16,6 +16,25 @@ export class ScanPresenter {
         return this._hasItems;
     }
 
+    private _checkKey = $state(-1);
+    public get checkKey() {
+        return this._checkKey;
+    }
+    public incrementCheckKey() {
+        this._checkKey += 1;
+    }
+
+    private _errorMessage = $state<string | null>();
+    public get errorMessage() {
+        return this._errorMessage;
+    }
+    public setErrorMessage(message: string) {
+        this._errorMessage = message;
+    }
+    public clearErrorMessage() {
+        this._errorMessage = null;
+    }
+
     private formService = new FormService();
 
     private scanner: QrScanner | null = null;
@@ -63,7 +82,7 @@ export class ScanPresenter {
             const names = nameParam.split(',').map(decodeURIComponent);
 
             if (ids.length !== names.length) {
-                console.log(
+                console.error(
                     `[ScanPresenter] Tried to decode a QR code with value ${data} but the length of the ids and names params were not equal`
                 );
                 return null;
@@ -77,21 +96,21 @@ export class ScanPresenter {
         }
     }
 
-    /**
-     * @throws Error
-     */
     private processQrCode(data: string): void {
         const items = this.validateAndExtractBarcodeData(data);
         if (!items) return; // Invalid URL, silently ignore
 
-        // TODO: Make this throw a custom error and then react to it in the UI
-        if (this.scannedItems.size + items.length > this.maxItems) {
-            throw new Error(
-                `Cannot add ${items.length} items because that would result in too many items`
-            );
+        const newItems = items.filter((item) => !this.scannedItems.has(item.itemId));
+
+        if (newItems.length === 0) return;
+
+        if (this.scannedItems.size + newItems.length > this.maxItems) {
+            this.setErrorMessage(`Max number of items (${this.maxItems}) has already been reached`);
+            return;
         }
 
-        items.forEach((item) => {
+        this.incrementCheckKey();
+        newItems.forEach((item) => {
             this.addScannedItem(item);
         });
     }
@@ -103,7 +122,7 @@ export class ScanPresenter {
                 if (error === 'Scanner error: No QR code found') return;
                 console.error(error);
             },
-            highlightCodeOutline: true,
+            // highlightCodeOutline: true,
             highlightScanRegion: true
         });
         this.scanner.start();

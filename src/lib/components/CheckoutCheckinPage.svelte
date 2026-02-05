@@ -2,12 +2,14 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { backOut } from 'svelte/easing';
 	import * as Select from '$lib/components/ui/select';
 	import type { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
 	import sdscBannerImg from '$lib/assets/san-diego-saints-choir-logo-full-color-rgb.svg';
 	import CenterColumn from './CenterColumn.svelte';
-	import TrashCanRegularFull from './TrashCanRegularFull.svelte';
+	import CheckCircleFill from './CheckCircleFill.svelte';
 	import XSolidFull from './XSolidFull.svelte';
+	import { fly } from 'svelte/transition';
 
 	interface Props {
 		presenter: ScanPresenter;
@@ -29,6 +31,35 @@
 	let videoElement: HTMLVideoElement;
 
 	let selectedMode = $state<string>(presenter.mode);
+
+	// Custom transition: scale in with bounce, then fade out
+	function scaleAndFade(node: HTMLElement, { duration = 1000, pause = 100, scaleDelay = 700 }) {
+		return {
+			duration,
+			css: (t: number) => {
+				if (t < scaleDelay / duration) {
+					const scaleProgress = t / (scaleDelay / duration);
+					const scale = backOut(scaleProgress);
+					return `transform: scale(${scale}); opacity: 1;`;
+				} else if (t < (scaleDelay + pause) / duration) {
+					return `transform: scale(1); opacity: 1;`;
+				}
+				const fadeProgress =
+					(t - (scaleDelay + pause) / duration) / (1 - (scaleDelay + pause) / duration);
+				const opacity = 1 - fadeProgress;
+				return `transform: scale(1); opacity: ${opacity};`;
+			},
+			tick: (t: number) => {
+				if (t === 0) {
+					node.style.opacity = '1';
+				}
+				// When transition completes (t = 1), keep opacity at 0
+				if (t === 1) {
+					node.style.opacity = '0';
+				}
+			}
+		};
+	}
 
 	$effect(() => {
 		if (selectedMode !== presenter.mode) {
@@ -81,24 +112,16 @@
 
 		<!-- Video -->
 		<div id="video-container" class="aspect-square w-full">
-			<!-- <div class="absolute z-10 flex h-full w-full items-center justify-center"> -->
-			<!-- 	<svg -->
-			<!-- 		class="h-3/4 w-3/4" -->
-			<!-- 		viewBox="0 0 24 24" -->
-			<!-- 		stroke="#ffffff" -->
-			<!-- 		stroke-width="0.5" -->
-			<!-- 		fill="none" -->
-			<!-- 		xmlns="http://www.w3.org/2000/svg" -->
-			<!-- 	> -->
-			<!-- 		<path d="M22 17V22H17" stroke-linecap="round" stroke-linejoin="round" /> -->
-			<!-- 		<path d="M7 22H2V17" stroke-linecap="round" stroke-linejoin="round" /> -->
-			<!-- 		<path d="M17 2H22V7" stroke-linecap="round" stroke-linejoin="round" /> -->
-			<!-- 		<path d="M7 2H2V7" stroke-linecap="round" stroke-linejoin="round" /> -->
-			<!-- 	</svg> -->
-			<!-- </div> -->
-			<!-- <div class="absolute z-10 flex h-full w-full items-center justify-center"> -->
-			<!-- 	<p class="rounded-full bg-black/40 px-6 py-1 text-center text-white/75">QR Scanned ✓</p> -->
-			<!-- </div> -->
+			{#key presenter.checkKey}
+				<div class="absolute z-10 flex h-full w-full items-center justify-center">
+					<div
+						class="h-12 w-12 rounded-full text-white opacity-0"
+						in:scaleAndFade={{ duration: 1000, scaleDelay: 400, pause: 500 }}
+					>
+						<CheckCircleFill />
+					</div>
+				</div>
+			{/key}
 			<video
 				bind:this={videoElement}
 				autoplay
@@ -108,11 +131,23 @@
 			></video>
 		</div>
 
+		{#if presenter.errorMessage}
+			<div class="mx-3 my-2 flex items-center rounded-sm bg-red-100/75 px-2 py-2">
+				<p class="flex-1">{presenter.errorMessage}</p>
+				<button class="mr-2 ml-2 w-6 text-black/70" onclick={() => presenter.clearErrorMessage()}
+					><XSolidFull /></button
+				>
+			</div>
+		{/if}
+
 		<!-- Scanned codes list -->
 		<div class="mx-auto mt-2 flex w-full max-w-md flex-1 flex-col px-3">
-			<h1 class="mb-2 text-xl">
-				Scanned Items <span class="text-gray-400">({presenter.scannedItems.size})</span>
-			</h1>
+			<div class="mb-2 flex items-center justify-between">
+				<h1 class="text-xl">
+					Scanned Items <span class="text-gray-700">({presenter.scannedItems.size})</span>
+				</h1>
+				<p class="text-xs text-gray-700">Max. {presenter.maxItems}</p>
+			</div>
 			<hr class="mb-1" />
 
 			{#if presenter.scannedItems.size === 0}
@@ -171,5 +206,22 @@
 		stroke: rgba(255, 255, 255, 0.5) !important;
 		stroke-width: 15 !important;
 		stroke-dasharray: none !important;
+	}
+
+	/* Hide all video controls and buttons */
+	video::-webkit-media-controls {
+		display: none !important;
+	}
+	video::-webkit-media-controls-enclosure {
+		display: none !important;
+	}
+	video::-webkit-media-controls-panel {
+		display: none !important;
+	}
+	video::-webkit-media-controls-play-button {
+		display: none !important;
+	}
+	video::-webkit-media-controls-start-playback-button {
+		display: none !important;
 	}
 </style>
