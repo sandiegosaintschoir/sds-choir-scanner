@@ -16,6 +16,13 @@ export class ScanPresenter {
         return this._hasItems;
     }
 
+    public readonly maxItems = 20;
+
+    private _submitDisabled = $derived(!this.hasItems || this.scannedItems.size > this.maxItems);
+    public get submitDisabled() {
+        return this._submitDisabled;
+    }
+
     private _checkKey = $state(-1);
     public get checkKey() {
         return this._checkKey;
@@ -39,8 +46,6 @@ export class ScanPresenter {
 
     private scanner: QrScanner | null = null;
     public readonly mode: ScanMode;
-
-    public readonly maxItems = 20;
 
     constructor(initialURL: string, mode: ScanMode = 'checkout') {
         this.mode = mode;

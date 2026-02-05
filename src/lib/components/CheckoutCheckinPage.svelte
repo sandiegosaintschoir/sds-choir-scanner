@@ -9,7 +9,7 @@
 	import CenterColumn from './CenterColumn.svelte';
 	import CheckCircleFill from './CheckCircleFill.svelte';
 	import XSolidFull from './XSolidFull.svelte';
-	import { fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	interface Props {
 		presenter: ScanPresenter;
@@ -122,6 +122,9 @@
 					</div>
 				</div>
 			{/key}
+			<!-- Note: When a mobile device is on low-power mode, the play button on the video
+            element cannot be hidden with CSS, so it will show up even if we don't have controls
+            enabled -->
 			<video
 				bind:this={videoElement}
 				autoplay
@@ -132,7 +135,10 @@
 		</div>
 
 		{#if presenter.errorMessage}
-			<div class="mx-3 my-2 flex items-center rounded-sm bg-red-100/75 px-2 py-2">
+			<div
+				class="mx-3 my-2 flex items-center rounded-sm bg-red-100/75 px-2 py-2"
+				transition:fade={{ duration: 200 }}
+			>
 				<p class="flex-1">{presenter.errorMessage}</p>
 				<button class="mr-2 ml-2 w-6 text-black/70" onclick={() => presenter.clearErrorMessage()}
 					><XSolidFull /></button
@@ -164,8 +170,6 @@
 							<span class="text-sm break-all">{item.name}</span>
 							<span class="text-xs break-all text-gray-500">[Id: {item.itemId}]</span>
 						</div>
-						<!-- TODO: Make it so that the button shows even when no items are scanned
-                            but make it disabled -->
 						<button
 							onclick={() => presenter.removeScannedItem(item)}
 							class="py-1 text-sm text-gray-700"
@@ -179,7 +183,7 @@
 				<button
 					onclick={() => presenter.goToCheckoutOrCheckin()}
 					class="mt-4 mb-6 w-full rounded-sm bg-green-500 py-3 font-semibold text-white hover:bg-green-600 disabled:bg-gray-300"
-					disabled={!presenter.hasItems}
+					disabled={presenter.submitDisabled}
 				>
 					{presenter.getButtonText()}
 				</button>
@@ -188,7 +192,6 @@
 	</div>
 </CenterColumn>
 
-<!-- TODO: Make this work on mobile -->
 <style>
 	#video-container {
 		overflow: hidden !important;
@@ -206,22 +209,5 @@
 		stroke: rgba(255, 255, 255, 0.5) !important;
 		stroke-width: 15 !important;
 		stroke-dasharray: none !important;
-	}
-
-	/* Hide all video controls and buttons */
-	video::-webkit-media-controls {
-		display: none !important;
-	}
-	video::-webkit-media-controls-enclosure {
-		display: none !important;
-	}
-	video::-webkit-media-controls-panel {
-		display: none !important;
-	}
-	video::-webkit-media-controls-play-button {
-		display: none !important;
-	}
-	video::-webkit-media-controls-start-playback-button {
-		display: none !important;
 	}
 </style>
