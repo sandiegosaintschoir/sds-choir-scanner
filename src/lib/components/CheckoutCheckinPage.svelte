@@ -9,7 +9,7 @@
 	import CenterColumn from './CenterColumn.svelte';
 	import CheckCircleFill from './CheckCircleFill.svelte';
 	import XSolidFull from './XSolidFull.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 
 	interface Props {
 		presenter: ScanPresenter;
@@ -94,6 +94,28 @@
 	<title>{presenter.mode === 'checkin' ? 'SDSC Library Checkin' : 'SDSC Library Checkout'}</title>
 </svelte:head>
 
+{#if presenter.manualInputOpen}
+	<div class="fixed z-20 h-full w-full bg-gray-200" transition:fly={{ y: 50, duration: 100 }}>
+		<CenterColumn>
+			<div class="flex h-full w-full flex-col bg-white shadow-md">
+				<!-- Fixed Header -->
+				<div class="flex flex-col px-3 pt-3 pb-2">
+					<button
+						class="w-6 self-end text-gray-700"
+						onclick={() => presenter.closeManualInputDialog()}><XSolidFull /></button
+					>
+					<h1>Manually Enter ID's</h1>
+				</div>
+
+				<!-- Scrollable Content -->
+				<div class="flex-1 overflow-y-auto px-3 pb-3">
+					<!-- Content goes here -->
+				</div>
+			</div>
+		</CenterColumn>
+	</div>
+{/if}
+
 <CenterColumn>
 	<div class="flex min-h-full w-full flex-col">
 		<div class="flex items-center justify-between px-3 py-2">
@@ -113,11 +135,19 @@
 			</Select.Root>
 		</div>
 
-		<p class="mb-3 px-3 text-center text-sm">
-			Scan all of your QR codes to {presenter.mode === 'checkin'
-				? 'check in. Only the choir librarian can check items in.'
-				: 'check out'}
-		</p>
+		<div class="mb-2 px-3">
+			<p class="text-center text-sm">
+				Scan all of your QR codes to {presenter.mode === 'checkin'
+					? 'check in. Only the choir librarian can check items in.'
+					: 'check out'}
+			</p>
+			<p class="text-center text-sm">
+				Camera not working? <button
+					class="text-blue-500"
+					onclick={() => presenter.openManualInputDialog()}>Tap here to enter ID's manually</button
+				>
+			</p>
+		</div>
 
 		<!-- Video -->
 		<div id="video-container" class="aspect-square w-full">

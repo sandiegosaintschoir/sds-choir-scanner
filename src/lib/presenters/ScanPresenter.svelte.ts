@@ -11,6 +11,11 @@ export class ScanPresenter {
         return this.scannedItemsStorage.scannedItems;
     }
 
+    private _manualInputOpen = $state(false);
+    public get manualInputOpen() {
+        return this._manualInputOpen;
+    }
+
     private _hasItems = $derived(this.scannedItems.size > 0);
     public get hasItems(): boolean {
         return this._hasItems;
@@ -163,5 +168,17 @@ export class ScanPresenter {
 
     getButtonText(): string {
         return this.mode === 'checkin' ? 'Check items in' : 'Check out items';
+    }
+
+    openManualInputDialog() {
+        this._manualInputOpen = true;
+        // TODO: Does pause continue to analyze the paused frame?
+        // Would it be better to .stop() here? What is the difference?
+        this.scanner?.pause();
+    }
+
+    closeManualInputDialog() {
+        this._manualInputOpen = false;
+        this.scanner?.start();
     }
 }
