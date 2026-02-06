@@ -1,12 +1,15 @@
-import type { ScanMode } from '$lib/config';
-import { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
+import { redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ url }) => {
-    // Read mode from query parameter, default to 'checkout'
-    const modeParam = url.searchParams.get('mode');
-    const mode: ScanMode = modeParam === 'checkin' ? 'checkin' : 'checkout';
+export const load: PageLoad = async ({ parent, url }) => {
+    const { scanPresenter } = await parent();
 
-    const presenter = new ScanPresenter(url.href, mode);
-    return { presenter };
+    const urlItems = scanPresenter.getItemsFromUrl(url);
+    if (urlItems) {
+        scanPresenter.addItems(urlItems);
+        const strippedUrl = scanPresenter.stripItemsFromUrl(url);
+        throw redirect(302, strippedUrl);
+    }
+
+    return { presenter: scanPresenter };
 };

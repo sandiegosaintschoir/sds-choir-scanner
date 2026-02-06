@@ -45,15 +45,41 @@ export class ScanPresenter {
     private formService = new FormService();
 
     private scanner: QrScanner | null = null;
-    public readonly mode: ScanMode;
 
-    constructor(initialURL: string, mode: ScanMode = 'checkout') {
-        this.mode = mode;
+    private _mode = $state<ScanMode>('checkout');
+    public get mode() {
+        return this._mode;
+    }
+    public set mode(m: ScanMode) {
+        this._mode = m;
+    }
+
+    constructor() {
         this.scannedItemsStorage = ScannedItemsStorage.initializeFromLocalStorage();
-        // Add any initial items from the url
-        const initialItems = this.validateAndExtractBarcodeData(initialURL);
-        console.log(`[ScanPresenter] constructor adding initial items ${JSON.stringify(initialItems)}`);
-        initialItems?.forEach((item) => this.addScannedItem(item));
+    }
+
+    public getItemsFromUrl(url: URL): ChoirItem[] | null {
+        const itemParam = url.searchParams.get('item');
+        if (!itemParam) return null;
+        const nameParam = url.searchParams.get('name');
+        if (!nameParam) return null;
+
+        const ids = itemParam
+            .split(',')
+            .map((id) => id.trim())
+            .filter((id) => id.length > 0);
+
+        const names = nameParam.split(',').map(decodeURIComponent);
+
+        if (ids.length !== names.length) {
+            console.error(
+                `[getItemsFromUrl] Tried to decode a URL with value ${url.href} but the length of the ids and names params were not equal`
+            );
+            return null;
+        }
+
+        const items = ids.map((id, idx) => new ChoirItem(id, names[idx]));
+        return items;
     }
 
     public stripItemsFromUrl(url: URL): URL {
@@ -74,29 +100,9 @@ export class ScanPresenter {
             //     return null;
             // }
 
-            // Extract and parse item parameter
-            const itemParam = url.searchParams.get('item');
-            if (!itemParam) return null;
-            const nameParam = url.searchParams.get('name');
-            if (!nameParam) return null;
+            const items = this.getItemsFromUrl(url);
 
-            const ids = itemParam
-                .split(',')
-                .map((id) => id.trim())
-                .filter((id) => id.length > 0);
-
-            const names = nameParam.split(',').map(decodeURIComponent);
-
-            if (ids.length !== names.length) {
-                console.error(
-                    `[ScanPresenter] Tried to decode a QR code with value ${data} but the length of the ids and names params were not equal`
-                );
-                return null;
-            }
-
-            const barcodes = ids.map((id, idx) => new ChoirItem(id, names[idx]));
-
-            return ids.length > 0 ? barcodes : null;
+            return items && items.length > 0 ? items : null;
         } catch {
             return null; // Invalid URL
         }
@@ -141,6 +147,12 @@ export class ScanPresenter {
             this.scanner.destroy();
             this.scanner = null;
         }
+    }
+
+    addItems(items: ChoirItem[]): void {
+        items.forEach((item) => {
+            this.addScannedItem(item);
+        });
     }
 
     addScannedItem(item: ChoirItem): void {

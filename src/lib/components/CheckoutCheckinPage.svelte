@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
+	import { onDestroy, onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import * as Select from '$lib/components/ui/select';
 	import type { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
@@ -17,22 +15,7 @@
 
 	let { presenter }: Props = $props();
 
-	// Navigate between checkout and check-in modes
-	function navigateToOtherMode() {
-		const url = new URL(page.url);
-		if (presenter.mode === 'checkout') {
-			// Switching to checkin
-			url.searchParams.set('mode', 'checkin');
-		} else {
-			// Switching to checkout - use clean URL without mode param
-			url.searchParams.delete('mode');
-		}
-		goto(url.pathname + url.search);
-	}
-
 	let videoElement: HTMLVideoElement;
-
-	let selectedMode = $derived(presenter.mode);
 
 	// Custom transition: scale in with bounce, then fade out
 	function scaleAndFade(node: HTMLElement, { duration = 1000, pause = 100, scaleDelay = 700 }) {
@@ -63,30 +46,12 @@
 		};
 	}
 
-	$effect(() => {
-		if (selectedMode !== presenter.mode) {
-			navigateToOtherMode();
-		}
-	});
-
-	// Set up scanner whenever presenter or videoElement changes
-	$effect(() => {
-		if (videoElement && presenter) {
-			presenter.setup(videoElement);
-
-			return () => {
-				presenter.destroy();
-			};
-		}
-	});
-
 	onMount(() => {
-		// Strip any items from the URL to avoid adding them again on reload
-		const currentUrl = page.url;
-		const cleanedUrl = presenter.stripItemsFromUrl(currentUrl);
-		if (cleanedUrl.href !== currentUrl.href) {
-			goto(cleanedUrl);
-		}
+		presenter.setup(videoElement);
+	});
+
+	onDestroy(() => {
+		presenter.destroy();
 	});
 </script>
 
@@ -102,9 +67,9 @@
 				alt="San Diego Saints Choir Banner Logo"
 				src={sdscBannerImg}
 			/>
-			<Select.Root type="single" bind:value={selectedMode}>
+			<Select.Root type="single" bind:value={presenter.mode}>
 				<Select.Trigger class="!h-6 px-1 py-0 text-xs xs:text-sm"
-					>{selectedMode === 'checkin' ? 'Checkin' : 'Checkout'}</Select.Trigger
+					>{presenter.mode === 'checkin' ? 'Checkin' : 'Checkout'}</Select.Trigger
 				>
 				<Select.Content>
 					<Select.Item class="text-sm" value="checkout">Checkout</Select.Item>
