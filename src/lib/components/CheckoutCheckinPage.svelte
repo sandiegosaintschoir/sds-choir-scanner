@@ -32,7 +32,7 @@
 
 	let videoElement: HTMLVideoElement;
 
-	let selectedMode = $state<string>(presenter.mode);
+	let selectedMode = $derived(presenter.mode);
 
 	// Custom transition: scale in with bounce, then fade out
 	function scaleAndFade(node: HTMLElement, { duration = 1000, pause = 100, scaleDelay = 700 }) {
