@@ -11,5 +11,5 @@ export const load: PageLoad = async ({ parent, url }) => {
         throw redirect(302, strippedUrl);
     }
 
-    return { presenter: scanPresenter };
+    return { scanPresenter };
 };

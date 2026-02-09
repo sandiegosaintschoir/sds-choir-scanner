@@ -5,5 +5,9 @@
 </script>
 
 <main class="h-full">
-	<CheckoutCheckinPage presenter={data.presenter} />
+	<CheckoutCheckinPage
+		scanPresenter={data.scanPresenter}
+		controlsPresenter={data.controlsPresenter}
+		videoElementProvider={data.videoElementProvider}
+	/>
 </main>
