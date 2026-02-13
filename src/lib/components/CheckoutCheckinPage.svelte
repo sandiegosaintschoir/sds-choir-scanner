@@ -2,7 +2,6 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import * as Select from '$lib/components/ui/select';
-	import * as Slider from '$lib/components/ui/slider';
 	import sdscBannerImg from '$lib/assets/san-diego-saints-choir-logo-full-color-rgb.svg';
 	import CenterColumn from './CenterColumn.svelte';
 	import CheckCircleFill from './CheckCircleFill.svelte';
@@ -11,6 +10,7 @@
 	import type { ScanPresenter } from '$lib/presenters/ScanPresenter.svelte';
 	import type { ScanControlsPresenter } from '$lib/presenters/ScanControlsPresenter.svelte';
 	import { VideoElementProvider } from '$lib/VideoElementProvider.svelte';
+	import Slider from './ui/sdsaints/Slider.svelte';
 
 	interface Props {
 		scanPresenter: ScanPresenter;
@@ -50,6 +50,9 @@
 	}
 
 	onMount(() => {
+		// TODO: This feels like it shouldn't work... but are derived values guaranteed to
+		// be computed before the onMount is run? And are bind:this values computed before
+		// onMount? It must be the case because this works. Is it a race condition?
 		if (!videoElementProvider.videoElementRef.videoElement) return;
 		scanPresenter.setup(videoElementProvider.videoElementRef.videoElement);
 
@@ -74,9 +77,13 @@
 
 	let zoomValue: number = $state(0);
 	$effect(() => {
-		if (!controlsPresenter.capabilities) return;
-		const minZoom = 1.0;
-		const maxZoom = 2.0;
+		if (!controlsPresenter.zoomCapabilities) return;
+		// TODO: This should happen in the setZoom function I think. Not here
+		// TODO: Check to make sure max > min and not max == min (i.e. zoom is "capable" but no min, max range)
+		// or like for example, if min==0.5 and max==1.0, then our effective range is 0. So zoom is technically
+		// not possible
+		const minZoom = Math.max(1.0, controlsPresenter.zoomCapabilities.min);
+		const maxZoom = Math.min(4.0, controlsPresenter.zoomCapabilities.max);
 		const mappedVal = minZoom + zoomValue * (maxZoom - minZoom);
 		controlsPresenter.setZoom(mappedVal);
 	});
@@ -135,10 +142,19 @@
 				playsinline
 				class="aspect-square w-full object-cover"
 			></video>
+			<div class="absolute bottom-3 z-10 w-full">
+				<div class="flex justify-center">
+					<div class="w-full max-w-[300px]">
+						<Slider bind:value={zoomValue} />
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="px-5">
-			<Slider.Root type="single" bind:value={zoomValue} min={0} max={1} step={0.01} />
-		</div>
+		<!-- <div class="px-5"> -->
+		<!-- 	<!-- It might be easier to just make our own zoom slider because I don't think the -->
+		<!--           shadcn one really fits what I am looking for. -->
+		<!-- 	<Slider.Root type="single" bind:value={zoomValue} min={0} max={1} step={0.01} /> -->
+		<!-- </div> -->
 
 		{#if scanPresenter.errorMessage}
 			<div

@@ -27,9 +27,6 @@ export class ScanControlsPresenter {
     });
 
     private _capabilities = $derived(this._videoTrack?.getCapabilities());
-    public get capabilities() {
-        return this._capabilities;
-    }
 
     private _supportsZoom = $derived('zoom' in (this._capabilities ?? {}));
     public get supportsZoom() {
@@ -52,6 +49,9 @@ export class ScanControlsPresenter {
         }
         return { min: this._capabilities.zoom.min, max: this._capabilities.zoom.max };
     });
+    public get zoomCapabilities() {
+        return this._zoomCapabilities;
+    }
 
     private _ready = $derived(!!this._zoomCapabilities);
     public get ready() {
