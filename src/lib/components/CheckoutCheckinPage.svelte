@@ -11,6 +11,7 @@
 	import type { ScanControlsPresenter } from '$lib/presenters/ScanControlsPresenter.svelte';
 	import { VideoElementProvider } from '$lib/VideoElementProvider.svelte';
 	import Slider from './ui/sdsaints/Slider.svelte';
+	import PinchInput from './ui/sdsaints/PinchInput.svelte';
 
 	interface Props {
 		scanPresenter: ScanPresenter;
@@ -77,15 +78,10 @@
 
 	let zoomValue: number = $state(0);
 	$effect(() => {
+		console.log(`effect, zoomValue: ${zoomValue}`);
 		if (!controlsPresenter.zoomCapabilities) return;
-		// TODO: This should happen in the setZoom function I think. Not here
-		// TODO: Check to make sure max > min and not max == min (i.e. zoom is "capable" but no min, max range)
-		// or like for example, if min==0.5 and max==1.0, then our effective range is 0. So zoom is technically
-		// not possible
-		const minZoom = Math.max(1.0, controlsPresenter.zoomCapabilities.min);
-		const maxZoom = Math.min(4.0, controlsPresenter.zoomCapabilities.max);
-		const mappedVal = minZoom + zoomValue * (maxZoom - minZoom);
-		controlsPresenter.setZoom(mappedVal);
+		console.log('setting zoom calling zoomValue');
+		controlsPresenter.setZoom(zoomValue);
 	});
 </script>
 
@@ -94,6 +90,8 @@
 		>{scanPresenter.mode === 'checkin' ? 'SDSC Library Checkin' : 'SDSC Library Checkout'}</title
 	>
 </svelte:head>
+<!-- TODO: remove -->
+<p>{zoomValue}</p>
 
 <CenterColumn>
 	<div class="flex min-h-full w-full flex-col">
@@ -122,6 +120,9 @@
 
 		<!-- Video -->
 		<div id="video-container" class="aspect-square w-full">
+			<div class="absolute z-20 h-full w-full">
+				<PinchInput bind:value={zoomValue} />
+			</div>
 			{#key scanPresenter.checkKey}
 				<div class="absolute z-10 flex h-full w-full items-center justify-center">
 					<div
@@ -142,13 +143,6 @@
 				playsinline
 				class="aspect-square w-full object-cover"
 			></video>
-			<div class="absolute bottom-3 z-10 w-full">
-				<div class="flex justify-center">
-					<div class="w-full max-w-[300px]">
-						<Slider bind:value={zoomValue} />
-					</div>
-				</div>
-			</div>
 		</div>
 		<!-- <div class="px-5"> -->
 		<!-- 	<!-- It might be easier to just make our own zoom slider because I don't think the -->

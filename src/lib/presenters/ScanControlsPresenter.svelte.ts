@@ -62,7 +62,13 @@ export class ScanControlsPresenter {
         this._videoElementProvider = videoElementProvider;
     }
 
+    /**
+     *
+     */
     public setZoom(zoom: number) {
+        if (zoom < 0 || zoom > 1) {
+            throw new Error(`[ScanControlsPresenter.setZoom] zoom value (${zoom}) is out of 0-1 range`);
+        }
         if (!this._videoTrack)
             throw new Error('[ScanControlsPresenter.setZoom] videoTrack is not defined');
         if (!this._zoomCapabilities)
@@ -71,6 +77,11 @@ export class ScanControlsPresenter {
             throw new Error('[ScanControlsPresenter.setZoom] zoom is out of min max range');
         }
 
-        this._videoTrack.applyConstraints({ advanced: [{ zoom: zoom } as any] });
+        const minZoom = Math.max(1.0, this._zoomCapabilities.min);
+        const maxZoom = Math.min(4.0, this._zoomCapabilities.max);
+        const mappedVal = minZoom + zoom * (maxZoom - minZoom);
+
+        console.log(`setting video track zoom: ${mappedVal}`);
+        this._videoTrack.applyConstraints({ advanced: [{ zoom: mappedVal } as any] });
     }
 }
