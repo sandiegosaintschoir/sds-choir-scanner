@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let { value = $bindable(0) }: { value?: number } = $props();
+	let { value = $bindable(1) }: { value?: number } = $props();
 
 	let initialValue = $state<number | undefined>();
 	let isPinching = $state(false);
@@ -23,7 +23,7 @@
 		const p2: [number, number] = [e.touches[1].clientX, e.touches[1].clientY];
 		initialDist = dist(p1, p2);
 		console.log(`setting initial dist: ${initialDist}`);
-		initialValue = value + 1;
+		initialValue = value;
 		console.log(`setting initial value: ${initialValue}`);
 	}
 
@@ -47,9 +47,9 @@
 
 		// TODO: The 0-1 range doesnt work well here because 0 * anything is 0.
 		// We should adjust the range internally but still output 0-1 (I think)
-		const newVal = Math.max(1, Math.min(2, initialValue * changeFactor));
-		console.log(`Setting value to ${newVal - 1}`);
-		value = newVal - 1;
+		const newVal = Math.max(1, Math.min(4, initialValue * changeFactor));
+		console.log(`Setting value to ${newVal}`);
+		value = newVal;
 	}
 
 	function handleTouchEnd(e: TouchEvent) {
@@ -65,13 +65,13 @@
 		// Add touch event listeners with passive: false to allow preventDefault to
 		// prevent scrolling of the page while adjusting slider
 		pinchInputEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-		pinchInputEl.addEventListener('touchmove', handleTouchMove, { passive: false });
-		pinchInputEl.addEventListener('touchend', handleTouchEnd, { passive: false });
+		window.addEventListener('touchmove', handleTouchMove, { passive: false });
+		window.addEventListener('touchend', handleTouchEnd, { passive: false });
 
 		return () => {
 			pinchInputEl.removeEventListener('touchstart', handleTouchStart);
-			pinchInputEl.removeEventListener('touchmove', handleTouchMove);
-			pinchInputEl.removeEventListener('touchend', handleTouchEnd);
+			window.removeEventListener('touchmove', handleTouchMove);
+			window.removeEventListener('touchend', handleTouchEnd);
 		};
 	});
 </script>
